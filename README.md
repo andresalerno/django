@@ -8,7 +8,7 @@ First of all, if you have not known me yet, please check it out my profile descr
 
 Seriously, I'm falling with love with this amazing place called [VERY ACADEMY](https://github.com/veryacademy).
 
-If you're studying some basics, even some concepts deeper, I strongly recommend this guy, that I've bought some courses ate UDEMY.
+If you're studying some basics, even some concepts deeper, I strongly recommend this guy, that I've bought some courses at UDEMY.
 
 I hope you enjoy a lot!
 
