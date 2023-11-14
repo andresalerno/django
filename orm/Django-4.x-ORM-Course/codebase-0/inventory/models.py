@@ -2,7 +2,7 @@ from django.db import models
 
 class Brand(models.Model):
     brand_id = models.BigAutoField(primary_key=True)
-    name = models.CharField(max_length=50)
+    name = models.CharField("Brand name", max_length=50)
     
     def __str__(self):
         return self.name
@@ -22,6 +22,7 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True)
     # category = models.ForeignKey(Category, on_delete=models.CASCADE)
     category = models.ManyToManyField(Category)
+    url = models.SlugField()
 
     class Meta:
         ordering = ["age"]
