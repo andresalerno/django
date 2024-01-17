@@ -21,7 +21,6 @@ class ServerListViewSet(viewsets.ViewSet):
         if by_user or by_serverid and not request.user.is_authenticated:
             raise AuthenticationFailed()
         
-        
         if category:
             self.queryset = self.queryset.filter(category__name=category)
             
