@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 # Importing the Server model and ServerSerializer from the current module
 from .models import Server
+from .schema import server_List_docs
 from .serializers import ServerSerializer
 
 
@@ -17,6 +18,7 @@ class ServerListViewSet(viewsets.ViewSet):
     queryset = Server.objects.all()
     
     # Custom 'list' method to handle GET requests for the Server list
+    @server_List_docs
     def list(self, request):
         """
         Handles the GET request to retrieve a list of servers with optional filtering.
@@ -80,8 +82,6 @@ class ServerListViewSet(viewsets.ViewSet):
         with_num_members = request.query_params.get("with_num_members") == "true"
         
         # Checking authentication for queries that require user authentication
-        if by_user or by_serverid and not request.user.is_authenticated:
-            raise AuthenticationFailed()
         
         # Filtering queryset based on the 'category' parameter
         if category:
@@ -89,8 +89,11 @@ class ServerListViewSet(viewsets.ViewSet):
             
         # Filtering queryset based on the authenticated user, if specified
         if by_user:
-            user_id = request.user.id
-            self.queryset = self.queryset.filter(member=user_id)
+            if by_user and not request.user.is_authenticated:
+                user_id = request.user.id
+                self.queryset = self.queryset.filter(member=user_id)
+            else:
+                raise AuthenticationFailed()
             
         # Annotating queryset with the count of members, if 'with_num_members' is specified
         if with_num_members:
@@ -102,6 +105,8 @@ class ServerListViewSet(viewsets.ViewSet):
             
         # Filtering queryset based on the 'by_serverid' parameter and handling exceptions
         if by_serverid:
+            if not request.user.is_authenticated:
+                raise AuthenticationFailed()
             try:
                 self.queryset = self.queryset.filter(id=by_serverid)
                 if not self.queryset.exists():
