@@ -4,6 +4,9 @@ from django.db import models
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 
+# Importing custom validators for image files
+from .validators import validate_icon_image_size, validate_image_file_extension
+
 # Function to define the upload path for server icons
 def server_icon_upload_path(instance, filename):
     return f"server/{instance.id}/server_icons/{filename}"
@@ -68,18 +71,30 @@ class Channel(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="channel_owner")
     topic = models.CharField(max_length=100)
     server = models.ForeignKey(Server, on_delete=models.CASCADE, related_name="channel_server")
-    banner = models.ImageField(upload_to=server_banner_upload_path, null=True, blank=True)
-    icon = models.ImageField(upload_to=server_icon_upload_path, null=True, blank=True)
+    
+    # Fields for images associated with the Channel model
+    banner = models.ImageField(
+        upload_to=server_banner_upload_path,
+        null=True,
+        blank=True,
+        validators=[validate_image_file_extension],
+    )
+    icon = models.ImageField(
+        upload_to=server_icon_upload_path,
+        null=True,
+        blank=True,
+        validators=[validate_icon_image_size, validate_image_file_extension],
+    )
     
     # Custom save method to delete old icon and banner files when updating
     def save(self, *args, **kwargs):
         if self.id:
-            existing = get_object_or_404(Category, id=self.id)
+            existing = get_object_or_404(Channel, id=self.id)
             if existing.icon != self.icon:
                 existing.icon.delete(save=False)
             if existing.banner != self.banner:
                 existing.banner.delete(save=False)
-        super(Category, self).save(*args, **kwargs)
+        super(Channel, self).save(*args, **kwargs)
 
     # Signal to delete associated files when a Channel instance is deleted
     @receiver(models.signals.pre_delete, sender="server.Channel")
